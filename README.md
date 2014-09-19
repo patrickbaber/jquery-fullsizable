@@ -144,12 +144,15 @@ to customize the whole flow of loading images, opening the viewer, etc.
 
 Therefor the following triggers and events are available:
 
-Events: ``fullsizable:opened``
+Events: ``fullsizable:opened``, ``fullsizable:increased``, ``fullsizable:decreased``
 
 Triggers: ``fullsizable:open``, ``fullsizable:close``, ``fullsizable:next``, ``fullsizable:prev``, ``fullsizable:reload``
 
 
 ## Changelog
+* **2.0.3** - 19.09.2014
+  * add fullsizable:increased and decreased events for more advanced usage
+
 * **2.0.2** - 03.09.2014
   * fullsizable:opened returns selector of element which triggered the viewer
 

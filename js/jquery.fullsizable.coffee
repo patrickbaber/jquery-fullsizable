@@ -26,6 +26,7 @@ spinner_class = 'fullsized_spinner'
 $image_holder = $('<div id="jquery-fullsizable"><div id="fullsized_image_holder"></div></div>')
 
 images = []
+elements = []
 current_image = 0
 options = null
 stored_scroll_position = null
@@ -54,11 +55,15 @@ keyPressed = (e) ->
 
 prevImage = (shouldHideChrome = false) ->
   if current_image > 0
-    showImage(images[current_image - 1], -1, shouldHideChrome)
+    prevImageIndex = current_image - 1
+    showImage(images[prevImageIndex], -1, shouldHideChrome)
+    $(document).trigger('fullsizable:decreased', elements[prevImageIndex])
 
 nextImage = (shouldHideChrome = false) ->
   if current_image < images.length - 1
-    showImage(images[current_image + 1], 1, shouldHideChrome)
+    nextImageIndex = current_image + 1
+    showImage(images[nextImageIndex], 1, shouldHideChrome)
+    $(document).trigger('fullsizable:increased', elements[nextImageIndex])
 
 showImage = (image, direction = 1, shouldHideChrome = false) ->
   current_image = image.index
@@ -128,6 +133,7 @@ closeViewer = ->
 
 makeFullsizable = ->
   images.length = 0
+  elements = $(options.selector).toArray()
 
   $(options.selector).each ->
     image = new Image

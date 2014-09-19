@@ -1,5 +1,6 @@
+
 /*
-jQuery fullsizable plugin v2.0.2
+jQuery fullsizable plugin v2.0.3
   - take full available browser space to show images
 
 (c) 2011-2014 Matthias Schmidt <http://m-schmidt.eu/>
@@ -16,11 +17,10 @@ Options:
   **clickBehaviour** (optional, 'next' or 'close', defaults to 'close') - whether a click on an opened image should close the viewer or open the next image.
   **preload** (optional, defaults to true) - lookup selector on initialization, set only to false in combination with ``reloadOnOpen: true`` or ``fullsizable:reload`` event.
   **reloadOnOpen** (optional, defaults to false) - lookup selector every time the viewer opens.
-*/
-
+ */
 
 (function() {
-  var $, $image_holder, bindCurtainEvents, closeFullscreen, closeViewer, container_id, current_image, hasFullscreenSupport, hideChrome, image_holder_id, images, keyPressed, makeFullsizable, mouseMovement, mouseStart, nextImage, openViewer, options, preloadImage, prepareCurtain, prevImage, resizeImage, showChrome, showImage, spinner_class, stored_scroll_position, toggleFullscreen, unbindCurtainEvents;
+  var $, $image_holder, bindCurtainEvents, closeFullscreen, closeViewer, container_id, current_image, elements, hasFullscreenSupport, hideChrome, image_holder_id, images, keyPressed, makeFullsizable, mouseMovement, mouseStart, nextImage, openViewer, options, preloadImage, prepareCurtain, prevImage, resizeImage, showChrome, showImage, spinner_class, stored_scroll_position, toggleFullscreen, unbindCurtainEvents;
 
   $ = jQuery;
 
@@ -34,6 +34,8 @@ Options:
 
   images = [];
 
+  elements = [];
+
   current_image = 0;
 
   options = null;
@@ -41,10 +43,9 @@ Options:
   stored_scroll_position = null;
 
   resizeImage = function() {
-    var image, _ref;
-
+    var image;
     image = images[current_image];
-    if ((_ref = image.ratio) == null) {
+    if (image.ratio == null) {
       image.ratio = (image.naturalHeight / image.naturalWidth).toFixed(2);
     }
     if ($(window).height() / image.ratio > $(window).width()) {
@@ -71,20 +72,26 @@ Options:
   };
 
   prevImage = function(shouldHideChrome) {
+    var prevImageIndex;
     if (shouldHideChrome == null) {
       shouldHideChrome = false;
     }
     if (current_image > 0) {
-      return showImage(images[current_image - 1], -1, shouldHideChrome);
+      prevImageIndex = current_image - 1;
+      showImage(images[prevImageIndex], -1, shouldHideChrome);
+      return $(document).trigger('fullsizable:decreased', elements[prevImageIndex]);
     }
   };
 
   nextImage = function(shouldHideChrome) {
+    var nextImageIndex;
     if (shouldHideChrome == null) {
       shouldHideChrome = false;
     }
     if (current_image < images.length - 1) {
-      return showImage(images[current_image + 1], 1, shouldHideChrome);
+      nextImageIndex = current_image + 1;
+      showImage(images[nextImageIndex], 1, shouldHideChrome);
+      return $(document).trigger('fullsizable:increased', elements[nextImageIndex]);
     }
   };
 
@@ -126,7 +133,6 @@ Options:
 
   preloadImage = function(direction) {
     var preload_image;
-
     if (direction === 1 && current_image < images.length - 1) {
       preload_image = images[current_image + 1];
     } else if ((direction === -1 || current_image === (images.length - 1)) && current_image > 0) {
@@ -173,9 +179,9 @@ Options:
 
   makeFullsizable = function() {
     images.length = 0;
+    elements = $(options.selector).toArray();
     return $(options.selector).each(function() {
       var image;
-
       image = new Image;
       image.buffer_src = $(this).attr('href');
       image.index = images.length;
@@ -252,7 +258,6 @@ Options:
 
   hideChrome = function() {
     var $chrome;
-
     $chrome = $image_holder.find('a');
     if ($chrome.is(':visible') === true) {
       $chrome.toggle(false);
@@ -264,7 +269,6 @@ Options:
 
   mouseMovement = function(event) {
     var distance;
-
     if (mouseStart === null) {
       mouseStart = [event.clientX, event.clientY];
     }
@@ -301,7 +305,6 @@ Options:
     $(document).bind('fullsizable:reload', makeFullsizable);
     $(document).bind('fullsizable:open', function(e, target) {
       var image, _i, _len, _results;
-
       if (options.reloadOnOpen) {
         makeFullsizable();
       }
@@ -321,7 +324,6 @@ Options:
 
   hasFullscreenSupport = function() {
     var fs_dom;
-
     fs_dom = $image_holder.get(0);
     if (fs_dom.requestFullScreen || fs_dom.webkitRequestFullScreen || fs_dom.mozRequestFullScreen) {
       return true;
@@ -336,7 +338,6 @@ Options:
 
   toggleFullscreen = function(force_close) {
     var fs_dom;
-
     fs_dom = $image_holder.get(0);
     if (fs_dom.requestFullScreen) {
       if (document.fullScreen || force_close) {
